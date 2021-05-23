@@ -96,6 +96,7 @@ func InitChain() *Chain {
 	var lastHash []byte;
 
 	opts := badger.DefaultOptions(dbUrl)
+	opts.Logger = nil
 	db, err := badger.Open(opts)
 
 	if err != nil {
