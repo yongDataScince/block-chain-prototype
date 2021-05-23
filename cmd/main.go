@@ -18,6 +18,8 @@ func main() {
 		fmt.Printf("Block: %x\n", i)
 		fmt.Printf("Block data: %s\n", block.Data);
 		fmt.Printf("Block Hash: %x\n", block.Hash);
+		fmt.Println("Block Nonse: ", block.Nonse);
+
 		fmt.Print("\n")
 	}
 }
