@@ -6,6 +6,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"time"
 
 	b "github.com/kirillNovoseletskii/block-chain-prototype/pkg/block"
 	"github.com/kirillNovoseletskii/block-chain-prototype/pkg/chain"
@@ -42,12 +43,17 @@ func (cli *CommandLine) addBlock(data string) {
 
 // cli command for print all blocks
 func (cli *CommandLine) printChain() {
+	fmt.Println()
+	fmt.Println("Chain: ")
 	iter := cli.blockChain.Iterator()
 
 	for {
 		block := iter.Next()
 		fmt.Printf("Block data: %s\n", block.Data)
 		fmt.Printf("Block hash: %x\n", block.Hash)
+		t, _ := strconv.ParseInt(fmt.Sprint(block.TimeStamp), 10, 64)
+		fmt.Println("Block TimeStamp: ", time.Unix(t, 0))
+		fmt.Println("Block Nonse: ", block.Nonse)
 		pow := b.NewProof(block)
 		fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.Validate()))
 		fmt.Println()

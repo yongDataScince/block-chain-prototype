@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	Difficulty = 15
+	Difficulty = 21
 )
 
 type ProofOfWork struct {
