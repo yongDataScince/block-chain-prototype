@@ -1,7 +1,8 @@
 # Blockchain implemenation
-<h3>stack</h3>
- - golang
- - badger
+
+Stack
+- golang
+- badger
 
 # Commands
 - Print chain -> `./main print`
