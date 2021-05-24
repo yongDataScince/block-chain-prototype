@@ -21,7 +21,9 @@ type CommandLine struct {
 func (cli *CommandLine) printUsage() {
 	fmt.Println("Usage:")
 	fmt.Println("\tPrint Chain -> 'print'")
-	fmt.Println("\tadd Block -> 'add -block BLOCK_DATA' ")
+	fmt.Println("\tadd Block   -> 'add -block BLOCK_DATA' ")
+	fmt.Println("\tclear db   -> 'clear' ")
+	fmt.Println("\tExample: '$./main print'")
 }
 
 // get commands arguments
