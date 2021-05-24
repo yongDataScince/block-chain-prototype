@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	Difficulty = 18
+	Difficulty = 25
 )
 
 type ProofOfWork struct {
@@ -25,6 +25,7 @@ func (pow *ProofOfWork) InitData(nonse int) []byte {
 		[][]byte{
 			pow.Block.PrevHash,
 			pow.Block.Data,
+			toHex(pow.Block.TimeStamp),
 			toHex(int64(nonse)),
 			toHex(int64(Difficulty)),
 		},
@@ -45,7 +46,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 		data := pow.InitData(nonse)
 		hash = sha256.Sum256(data)
 
-		fmt.Printf("\r%x", hash)
+		fmt.Printf("\rhash selection: %x", hash)
 		intHash.SetBytes(hash[:])
 
 		if intHash.Cmp(pow.Target) == -1 {
@@ -54,6 +55,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 			nonse++
 		}
 	}
+
 	fmt.Println()
 	fmt.Println()
 

@@ -1,7 +1,13 @@
 package handle
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 func HandleError(err error) {
-	log.Fatal(err)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
 }

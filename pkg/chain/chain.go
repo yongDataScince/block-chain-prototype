@@ -2,7 +2,6 @@ package chain
 
 import (
 	"fmt"
-	"log"
 
 	badger "github.com/dgraph-io/badger/v3"
 	b "github.com/kirillNovoseletskii/block-chain-prototype/pkg/block"
@@ -63,6 +62,7 @@ func (c *Chain) AddBlock(data string) {
 			lastHash = val
 			return err
 		})
+		handle.HandleError(err)
 
 		return err
 	})
@@ -72,17 +72,16 @@ func (c *Chain) AddBlock(data string) {
 
 	err = c.DataBase.Update(func(txn *badger.Txn) error {
 		err := txn.Set(newBlock.Hash, newBlock.Serialize())
-		{
-			log.Fatal(err)
-		}
+		handle.HandleError(err)
 		err = txn.Set([]byte("lh"), newBlock.Hash)
+		handle.HandleError(err)
 		c.LastHash = newBlock.Hash
 
 		return err
 	})
 
 	handle.HandleError(err)
-	
+
 }
 
 // create first(genesis) block of chain
@@ -99,7 +98,6 @@ func InitChain() *Chain {
 	db, err := badger.Open(opts)
 
 	handle.HandleError(err)
-	
 
 	db.Update(func(txn *badger.Txn) error {
 		_, err := txn.Get([]byte("lh"))
@@ -110,16 +108,16 @@ func InitChain() *Chain {
 			fmt.Println("Genesis Provided")
 			err := txn.Set(gen.Hash, gen.Serialize()) // write genesis block in database
 			handle.HandleError(err)
-			
+
 			err = txn.Set([]byte("lh"), gen.Hash)
 			handle.HandleError(err)
-			
+
 			lastHash = gen.Hash
 			return nil
 		} else {
 			item, err := txn.Get([]byte("lh"))
 			handle.HandleError(err)
-			
+
 			var value []byte
 			err = item.Value(func(val []byte) error {
 				value = val
