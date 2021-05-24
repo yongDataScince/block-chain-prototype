@@ -3,25 +3,28 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"strconv"
 
 	b "github.com/kirillNovoseletskii/block-chain-prototype/pkg/block"
 	"github.com/kirillNovoseletskii/block-chain-prototype/pkg/chain"
+	"github.com/kirillNovoseletskii/block-chain-prototype/pkg/handle"
 )
 
+// struct for cli comands
 type CommandLine struct {
 	blockChain *chain.Chain
 }
 
+// print blockchain usage
 func (cli *CommandLine) printUsage() {
 	fmt.Println("Usage:")
 	fmt.Println("\tPrint Chain -> 'print'")
 	fmt.Println("\tadd Block -> 'add -block BLOCK_DATA' ")
 }
 
+// get commands arguments
 func (cli *CommandLine) validateArgs() {
 	if len(os.Args) < 2 {
 		cli.printUsage()
@@ -29,11 +32,13 @@ func (cli *CommandLine) validateArgs() {
 	}
 }
 
+// cli command for add block to chain
 func (cli *CommandLine) addBlock(data string) {
 	cli.blockChain.AddBlock(data)
 	fmt.Println("Block added✅")
 }
 
+// cli command for print all blocks
 func (cli *CommandLine) printChain() {
 	iter := cli.blockChain.Iterator()
 
@@ -51,6 +56,7 @@ func (cli *CommandLine) printChain() {
 	}
 }
 
+// start cli
 func (cli *CommandLine) run() {
 	cli.validateArgs()
 
@@ -61,14 +67,10 @@ func (cli *CommandLine) run() {
 	switch os.Args[1] {
 	case "add":
 		err := addBlockCmd.Parse(os.Args[2:])
-		if err != nil {
-			log.Fatal(err)
-		}
+		handle.HandleError(err)
 	case "print":
 		err := printCmd.Parse(os.Args[2:])
-		if err != nil {
-			log.Fatal(err)
-		}
+		handle.HandleError(err)
 	default:
 		cli.printUsage()
 		runtime.Goexit()

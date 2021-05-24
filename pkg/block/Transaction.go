@@ -5,13 +5,14 @@ import (
 	"crypto/sha256"
 	"encoding/gob"
 	"fmt"
-	"log"
+
+	"github.com/kirillNovoseletskii/block-chain-prototype/pkg/handle"
 )
 
 type Transaction struct {
-	ID 				[]byte
-	TxInputs	[]TxInput
-	TxOutputs []TxOutput 
+	ID        []byte
+	TxInputs  []TxInput
+	TxOutputs []TxOutput
 }
 
 type TxOutput struct {
@@ -20,7 +21,7 @@ type TxOutput struct {
 }
 
 type TxInput struct {
-	ID []byte
+	ID  []byte
 	Out int
 	Sig string
 }
@@ -34,7 +35,7 @@ func (out *TxOutput) CanBeUnlocked(data string) bool {
 }
 
 func (tx *Transaction) IsCoinbase() bool {
-	return len(tx.TxInputs) == 1 && len(tx.TxInputs[0].ID) == 0 && tx.TxInputs[0].Out == -1 
+	return len(tx.TxInputs) == 1 && len(tx.TxInputs[0].ID) == 0 && tx.TxInputs[0].Out == -1
 }
 
 func (tx *Transaction) SetID() {
@@ -44,9 +45,7 @@ func (tx *Transaction) SetID() {
 	encode := gob.NewEncoder(&encoded)
 	err := encode.Encode(tx)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	handle.HandleError(err)
 	hash = sha256.Sum256(encoded.Bytes())
 	tx.ID = hash[:]
 }

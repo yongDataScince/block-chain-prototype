@@ -5,9 +5,10 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
-	"log"
 	"math"
 	"math/big"
+
+	"github.com/kirillNovoseletskii/block-chain-prototype/pkg/handle"
 )
 
 const (
@@ -33,6 +34,7 @@ func (pow *ProofOfWork) InitData(nonse int) []byte {
 	return data
 }
 
+// generate hash for block
 func (pow *ProofOfWork) Run() (int, []byte) {
 	var intHash big.Int
 	var hash [32]byte
@@ -58,22 +60,22 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 	return nonse, hash[:]
 }
 
+// check block for PoW
 func (pow *ProofOfWork) Validate() bool {
 	var intHash big.Int
-	data := pow.InitData(pow.Block.Nonse);
+	data := pow.InitData(pow.Block.Nonse)
 
-	hash := sha256.Sum256(data);
+	hash := sha256.Sum256(data)
 	intHash.SetBytes(hash[:])
 
 	return intHash.Cmp(pow.Target) == -1
 }
 
+// function which create byte from number
 func toHex(n int64) []byte {
 	buff := new(bytes.Buffer)
 	err := binary.Write(buff, binary.BigEndian, n)
-	if err != nil {
-		log.Fatal(err)
-	}
+	handle.HandleError(err)
 
 	return buff.Bytes()
 }

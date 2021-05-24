@@ -6,6 +6,7 @@ import (
 
 	badger "github.com/dgraph-io/badger/v3"
 	b "github.com/kirillNovoseletskii/block-chain-prototype/pkg/block"
+	"github.com/kirillNovoseletskii/block-chain-prototype/pkg/handle"
 )
 
 const (
@@ -14,25 +15,25 @@ const (
 
 type Chain struct {
 	DataBase *badger.DB
-	LastHash []byte
+	LastHash []byte // last hash of block
 }
 
+// type for printing chain
 type ChainIterator struct {
 	CurrentHash []byte
-	DataBase 		*badger.DB
+	DataBase    *badger.DB
 }
 
 func (c *Chain) Iterator() *ChainIterator {
 	return &ChainIterator{c.LastHash, c.DataBase}
 }
 
+// type for get next value of database
 func (iter *ChainIterator) Next() *b.Block {
 	var encBlock []byte
 	err := iter.DataBase.View(func(txn *badger.Txn) error {
 		item, err := txn.Get(iter.CurrentHash)
-		if err != nil {
-			log.Fatal(err)
-		}
+		handle.HandleError(err)
 
 		err = item.Value(func(val []byte) error {
 			encBlock = val
@@ -42,23 +43,22 @@ func (iter *ChainIterator) Next() *b.Block {
 		return err
 	})
 
-	if err != nil {
-		log.Fatal(err)
-	}
-	decBlock := b.Deserialize(encBlock);
+	handle.HandleError(err)
+
+	decBlock := b.Deserialize(encBlock) // decode block from database
 	iter.CurrentHash = decBlock.PrevHash
 
 	return decBlock
 }
 
+// add blocks to chain and database
 func (c *Chain) AddBlock(data string) {
 	var lastHash []byte
-	
+
 	err := c.DataBase.View(func(txn *badger.Txn) error {
-		item, err := txn.Get([]byte("lh"));
-		if err != nil {
-			log.Fatal(err)
-		}
+		item, err := txn.Get([]byte("lh"))
+		handle.HandleError(err)
+
 		err = item.Value(func(val []byte) error {
 			lastHash = val
 			return err
@@ -66,15 +66,13 @@ func (c *Chain) AddBlock(data string) {
 
 		return err
 	})
-	if err != nil {
-		log.Fatal(err)
-	}
+	handle.HandleError(err)
 
 	newBlock := b.NewBlock(data, lastHash)
 
 	err = c.DataBase.Update(func(txn *badger.Txn) error {
 		err := txn.Set(newBlock.Hash, newBlock.Serialize())
-		if err != nil {
+		{
 			log.Fatal(err)
 		}
 		err = txn.Set([]byte("lh"), newBlock.Hash)
@@ -83,54 +81,51 @@ func (c *Chain) AddBlock(data string) {
 		return err
 	})
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	handle.HandleError(err)
+	
 }
 
+// create first(genesis) block of chain
 func genesis() *b.Block {
 	return b.NewBlock("genesis", []byte{})
 }
 
+// create chain
 func InitChain() *Chain {
-	var lastHash []byte;
+	var lastHash []byte
 
 	opts := badger.DefaultOptions(dbUrl)
 	opts.Logger = nil
 	db, err := badger.Open(opts)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	handle.HandleError(err)
+	
 
 	db.Update(func(txn *badger.Txn) error {
-		_, err := txn.Get([]byte("lh")); if err == badger.ErrKeyNotFound {
+		_, err := txn.Get([]byte("lh"))
+		if err == badger.ErrKeyNotFound {
+			// check if block chain not found in database
 			fmt.Println("Existing BlockChain not fount")
 			gen := genesis()
 			fmt.Println("Genesis Provided")
-			err := txn.Set(gen.Hash, gen.Serialize());
-			if err != nil {
-				log.Fatal(err)
-			}
-			err = txn.Set([]byte("lh"), gen.Hash);
-			if err != nil {
-				log.Fatal(err)
-			}
+			err := txn.Set(gen.Hash, gen.Serialize()) // write genesis block in database
+			handle.HandleError(err)
+			
+			err = txn.Set([]byte("lh"), gen.Hash)
+			handle.HandleError(err)
+			
 			lastHash = gen.Hash
 			return nil
 		} else {
-			item, err := txn.Get([]byte("lh"));
-			if err != nil {
-				log.Fatal(err)
-			}
+			item, err := txn.Get([]byte("lh"))
+			handle.HandleError(err)
+			
 			var value []byte
 			err = item.Value(func(val []byte) error {
 				value = val
 				return nil
 			})
-			if err != nil {
-				log.Fatal(err)
-			}
+			handle.HandleError(err)
 			lastHash = value
 		}
 		return err
