@@ -1,4 +1,4 @@
-package block
+package chain
 
 import (
 	"bytes"
@@ -26,6 +26,8 @@ type TxInput struct {
 	Sig string
 }
 
+func NewTransaction()
+
 func (inp *TxInput) CanUnlock(data string) bool {
 	return inp.Sig == data
 }
@@ -49,6 +51,8 @@ func (tx *Transaction) SetID() {
 	hash = sha256.Sum256(encoded.Bytes())
 	tx.ID = hash[:]
 }
+
+func NewTx(from, to string, amount int, chain Chain)
 
 func CoinbaseTx(to, data string) *Transaction {
 	if data == "" {

@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	b "github.com/kirillNovoseletskii/block-chain-prototype/pkg/block"
 	"github.com/kirillNovoseletskii/block-chain-prototype/pkg/chain"
 	"github.com/kirillNovoseletskii/block-chain-prototype/pkg/handle"
 )
@@ -54,7 +53,7 @@ func (cli *CommandLine) printChain() {
 		t, _ := strconv.ParseInt(fmt.Sprint(block.TimeStamp), 10, 64)
 		fmt.Println("Block TimeStamp: ", time.Unix(t, 0))
 		fmt.Println("Block Nonse: ", block.Nonse)
-		pow := b.NewProof(block)
+		pow := chain.NewProof(block)
 		fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.Validate()))
 		fmt.Println()
 

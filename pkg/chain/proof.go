@@ -24,7 +24,7 @@ func (pow *ProofOfWork) InitData(nonse int) []byte {
 	data := bytes.Join(
 		[][]byte{
 			pow.Block.PrevHash,
-			pow.Block.Data,
+			pow.Block.HashTransaction(),
 			toHex(pow.Block.TimeStamp),
 			toHex(int64(nonse)),
 			toHex(int64(Difficulty)),
